@@ -1,0 +1,146 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection, render } from 'astro:content';
+import { Image } from 'astro:assets';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('posts');
+  return posts.map((post) => {
+    // Remove file extension from id for clean URLs
+    const slug = post.id.replace(/\/index\.md$/, '').replace(/\.md$/, '');
+    return {
+      params: { id: slug },
+      props: { post },
+    };
+  });
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+
+// Get inline images and gallery images from frontmatter
+const inlineImages = post.data.inlineImages || [];
+const galleryImages = post.data.images || [];
+---
+
+<BaseLayout title={post.data.title}>
+  <article class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <!-- Post Title -->
+    <header class="mb-8">
+      <h1 class="text-3xl sm:text-4xl lg:text-5xl font-normal tracking-tight" style="color: var(--color-foreground);">
+        {post.data.title}
+      </h1>
+    </header>
+
+    <!-- Inline Images (before main content) -->
+    {inlineImages.length > 0 && (
+      <div class="mb-8 space-y-6">
+        {inlineImages.map((imagePath) => (
+          <figure>
+            <Image
+              src={imagePath}
+              alt=""
+              loading="lazy"
+              class="w-full rounded-lg"
+              style="aspect-ratio: 16/9; object-fit: cover;"
+            />
+          </figure>
+        ))}
+      </div>
+    )}
+
+    <!-- Post Content -->
+    <div class="prose max-w-none">
+      <Content />
+    </div>
+
+    <!-- Gallery Grid -->
+    {galleryImages.length > 0 && (
+      <section class="mt-12" aria-label="Photo gallery">
+        <h2 class="text-xl sm:text-2xl font-normal mb-6" style="color: var(--color-foreground);">
+          Фотогалерея
+        </h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {galleryImages.map((imagePath) => (
+            <figure>
+              <Image
+                src={imagePath}
+                alt=""
+                loading="lazy"
+                class="w-full rounded-lg"
+                style="aspect-ratio: 1; object-fit: cover;"
+              />
+            </figure>
+          ))}
+        </div>
+      </section>
+    )}
+  </article>
+</BaseLayout>
+
+<style>
+  /* Prose styles for post content */
+  .prose {
+    color: var(--color-foreground);
+  }
+
+  .prose :global(p) {
+    margin-bottom: 1.5em;
+    line-height: 1.8;
+  }
+
+  .prose :global(h2) {
+    font-size: 1.75rem;
+    font-weight: 400;
+    margin-top: 2.5em;
+    margin-bottom: 1em;
+    color: var(--color-foreground);
+  }
+
+  .prose :global(h3) {
+    font-size: 1.375rem;
+    font-weight: 400;
+    margin-top: 2em;
+    margin-bottom: 0.75em;
+    color: var(--color-foreground);
+  }
+
+  .prose :global(a) {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .prose :global(a:hover) {
+    color: var(--color-accent-hover);
+  }
+
+  .prose :global(ul), .prose :global(ol) {
+    padding-left: 1.5em;
+    margin-bottom: 1.5em;
+  }
+
+  .prose :global(li) {
+    margin-bottom: 0.5em;
+  }
+
+  .prose :global(blockquote) {
+    border-left: 3px solid var(--color-accent);
+    padding-left: 1.5em;
+    margin: 2em 0;
+    font-style: italic;
+    color: var(--color-muted);
+  }
+
+  .prose :global(code) {
+    background-color: var(--color-border);
+    padding: 0.2em 0.4em;
+    border-radius: 0.25em;
+    font-size: 0.9em;
+  }
+
+  .prose :global(img) {
+    border-radius: 0.5rem;
+    margin: 2em 0;
+  }
+</style>

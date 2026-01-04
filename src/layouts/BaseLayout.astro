@@ -1,0 +1,77 @@
+---
+import '../styles/global.css';
+import ThemeSwitcher from '../components/ThemeSwitcher';
+
+interface Props {
+  title?: string;
+  image?: string;
+}
+
+const {
+  title = 'Живущие мечтой',
+  image = '/og-default.jpg'
+} = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const currentYear = new Date().getFullYear();
+---
+
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+
+    <!-- SEO Meta Tags -->
+    <title>{title}</title>
+    <link rel="canonical" href={canonicalURL} />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:title" content={title} />
+    <meta property="og:image" content={new URL(image, Astro.url)} />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content={canonicalURL} />
+    <meta property="twitter:title" content={title} />
+    <meta property="twitter:image" content={new URL(image, Astro.url)} />
+  </head>
+  <body class="min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="border-b" style="border-color: var(--color-border)">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="py-6 sm:py-8 flex justify-between items-center">
+          <h1 class="text-2xl sm:text-3xl font-normal tracking-tight">
+            <a href="/" class="hover:opacity-70 transition-opacity" style="color: var(--color-foreground)">
+              Живущие мечтой
+            </a>
+          </h1>
+          <ThemeSwitcher client:load />
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1">
+      <slot />
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t mt-auto" style="border-color: var(--color-border)">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        <div class="flex flex-col sm:flex-row justify-between items-center gap-2 sm:gap-0">
+          <p class="text-sm" style="color: var(--color-muted)">
+            Живущие мечтой
+          </p>
+          <p class="text-sm" style="color: var(--color-muted)">
+            © {currentYear}
+          </p>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

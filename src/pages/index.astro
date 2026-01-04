@@ -1,0 +1,40 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+// Get all posts and sort by publishDate (oldest first)
+const allPosts = await getCollection('posts');
+const sortedPosts = allPosts.sort((a, b) =>
+  a.data.publishDate.getTime() - b.data.publishDate.getTime()
+);
+---
+
+<BaseLayout>
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <nav aria-label="Blog posts">
+      <ul class="space-y-4" style="list-style: none; padding: 0; margin: 0;">
+        {sortedPosts.map((post) => {
+          // Remove file extension from id for clean URLs
+          const slug = post.id.replace(/\/index\.md$/, '').replace(/\.md$/, '');
+          return (
+            <li>
+              <a
+                href={`/posts/${slug}/`}
+                class="block text-xl sm:text-2xl hover:opacity-60 transition-opacity"
+                style="color: var(--color-foreground);"
+              >
+                {post.data.title}
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+    </nav>
+
+    {sortedPosts.length === 0 && (
+      <p style="color: var(--color-muted);">
+        Посты пока не опубликованы.
+      </p>
+    )}
+  </div>
+</BaseLayout>
