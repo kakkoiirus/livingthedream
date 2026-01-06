@@ -39,6 +39,40 @@ const currentYear = new Date().getFullYear();
     <meta property="twitter:url" content={canonicalURL} />
     <meta property="twitter:title" content={title} />
     <meta property="twitter:image" content={new URL(image, Astro.url)} />
+
+    <!-- Inline script to prevent theme flash -->
+    <script is:inline define:vars={{}}>
+      (function() {
+        const theme = localStorage.getItem('theme');
+        const root = document.documentElement;
+
+        // Disable transitions during initial theme apply to prevent animation
+        const style = document.createElement('style');
+        style.innerHTML = '* { transition: none !important; }';
+        document.head.appendChild(style);
+
+        // Apply theme class
+        if (theme === 'dark') {
+          root.classList.add('dark');
+        } else if (theme === 'light') {
+          root.classList.add('light');
+        } else {
+          // system theme - detect preference
+          if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            root.classList.add('dark');
+          } else {
+            root.classList.add('light');
+          }
+        }
+
+        // Re-enable transitions after next frame
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            style.remove();
+          });
+        });
+      })();
+    </script>
   </head>
   <body class="min-h-screen flex flex-col">
     <!-- Header -->
