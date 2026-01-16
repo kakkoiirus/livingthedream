@@ -1,9 +1,9 @@
 # Product Requirements Document (PRD)
 
 **Project Name:** Живущие мечтой (Living the Dream)
-**Version:** 1.0
+**Version:** 2.0
 **Status:** Implemented
-**Last Updated:** 2025-01-08
+**Last Updated:** 2025-01-16
 
 ---
 
@@ -13,10 +13,10 @@
 
 ### Key Objectives
 - Create a fast, lightweight static blog
-- Maintain clean, minimal aesthetic with 2025 "trendy" earth tone design
+- Maintain clean, minimal aesthetic with typography-focused design
 - Ensure privacy-focused experience (no tracking, no analytics)
 - Achieve perfect Lighthouse scores across all metrics
-- Provide seamless theme switching (light/dark mode)
+- Provide seamless theme switching (light/dark/system modes)
 
 ---
 
@@ -28,6 +28,8 @@
 | **Content Management** | Astro Content Collections | Type-safe content with glob loader |
 | **Frontend Library** | React (selective) | For ThemeSwitcher component only |
 | **Styling** | Tailwind CSS v4 | Utility-first with custom theme via Vite plugin |
+| **Typography** | Newsreader (Google Fonts) | Serif display font for elegant reading experience |
+| **Icons** | Material Symbols Outlined | Google's icon font for consistent iconography |
 | **Hosting** | GitHub Pages | Free static hosting with HTTPS |
 | **Custom Domain** | livingthedream.ru | Personalized branding |
 | **CI/CD** | GitHub Actions | Auto-deploy on push to main branch |
@@ -42,12 +44,16 @@
 **Location:** `src/pages/index.astro`
 
 **Requirements:**
-- **Layout:** Simple vertical list of all posts
+- **Layout:** Simple vertical list of all posts with large italic titles
 - **Sorting:** Chronological order (oldest posts first via `publishDate`)
 - **Content Display:** Post titles only (no dates, no cover images)
+- **Typography:** `text-2xl md:text-3xl italic font-normal`
+- **Spacing:** `space-y-12 md:space-y-16` between posts
+- **Link Animation:** Underline animation on hover (`.link-hover` class)
 - **Pagination:** None (single scrollable list)
 - **Empty State:** Russian message "Посты пока не опубликованы." when no posts exist
 - **URL Structure:** Clean URLs without `/posts/` prefix (e.g., `/nachalo-puti/`)
+- **Decorative Element:** Loading spinner at bottom (purely decorative, `aria-hidden="true"`)
 
 **Implementation Details:**
 ```javascript
@@ -60,20 +66,27 @@
 
 ### 3.2 Post Page (`/[slug]/`)
 
-**Location:** `src/pages/posts/[id].astro` (planned, currently unimplemented)
+**Location:** `src/pages/[id].astro`
 
 **Requirements:**
 - **Dynamic Routing:** Use `getStaticPaths()` to generate routes from Content Collection
+- **Max Width:** 65ch for optimal reading experience
 - **Content Structure:**
-  1. **Title:** Large, clear post title
-  2. **Body:** Markdown content with images embedded between paragraphs
-  3. **Gallery:** Grid of remaining images (20-30 photos) after main text
+  1. **Back Link:** "На главную" with `arrow_back` Material Symbol icon
+  2. **Title:** Large post title with decorative green line underneath
+  3. **Body:** Markdown content with images embedded between paragraphs
+  4. **Gallery:** Grid of remaining images (20-30 photos) after main text
+  5. **Footer Decoration:** Gradient line at bottom
 
 - **Image Handling:**
   - Inline images referenced in markdown via standard `![](path)` syntax
   - Gallery images specified via `images` array in frontmatter
   - Images stored in `public/posts/[slug]/images/` directory
   - Use Astro's `<Image />` component for optimization (responsive formats, lazy loading)
+
+- **Decorative Elements:**
+  - Green accent line under title: `w-12 h-1 rounded-full` with `--color-primary`
+  - Gradient footer: `linear-gradient(to right, transparent, var(--color-border), transparent)`
 
 - **Lightbox:** Out of scope for MVP (planned for future iteration)
 
@@ -119,25 +132,27 @@ public/posts/
 **Location:** `src/layouts/BaseLayout.astro`
 
 **Header:**
-- Site title "Живущие мечтой" linked to home
-- Theme switcher button (Sun/Moon icons)
-- Responsive padding (py-6 sm:py-8)
+- Sticky positioning with backdrop blur (`backdrop-blur-md`)
+- Site title "Живущие мечтой" linked to home with link-hover animation
+- Theme switcher button (Material Symbols icons)
+- Responsive padding (py-4 sm:py-6)
 - Bottom border for visual separation
 
 **Footer:**
-- Site title "Живущие мечтой"
-- Copyright notice with current year (© 2025)
-- Responsive layout (column on mobile, row on desktop)
+- Minimal centered design
+- Copyright notice: "© {year} Живущие мечтой"
+- Single text line with muted color
 
 **Theme Switcher:**
 - **Component:** `src/components/ThemeSwitcher.tsx` (React)
 - **Directive:** `client:load` for immediate hydration
 - **Features:**
-  - Toggle between light/dark themes
+  - Three-state toggle: light → dark → system
   - localStorage persistence with key `'theme'`
   - System preference detection as fallback
   - Prevent flash of unstyled content via inline script
-  - `mounted` state to avoid hydration mismatch
+- **Icons:** Material Symbols (`light_mode`, `dark_mode`, `desktop_windows`)
+- **Styling:** Transparent background, rounded-full, hover opacity change
 
 ---
 
@@ -146,7 +161,8 @@ public/posts/
 **Location:** `src/styles/global.css`
 
 **Design Philosophy:**
-- 2025 "trendy" sophisticated earth tone palette
+- Minimalist typography-focused design
+- Green accent color palette (#2d5340 primary)
 - Smooth transitions (0.3s ease) for all color changes
 - CSS custom properties for easy theme switching
 - Support for both `.light` and `.dark` classes on `<html>` element
@@ -155,22 +171,28 @@ public/posts/
 
 | Name | Light Mode | Dark Mode | Usage |
 |------|------------|-----------|-------|
-| Background | `stone-50` (#fafaf9) | `stone-950` (#0c0a09) | Page background |
-| Foreground | `stone-900` (#1c1917) | `stone-100` (#fafaf9) | Primary text |
-| Muted | `stone-500` (#78716c) | `stone-400` (#a8a29e) | Secondary text |
-| Accent | `sage-600` (#657550) | `sage-400` (#94a87e) | Links, buttons |
-| Accent Hover | `sage-700` (#4f5c3e) | `sage-300` (#b3c2a0) | Interactive states |
-| Border | `stone-200` (#e7e5e4) | `stone-800` (#292524) | Dividers, borders |
-
-**Additional Palettes:**
-- **Terracotta:** Warm accents (terracotta-50 through terracotta-950)
-- **Muted Blue:** Subtle highlights (muted-blue-50 through muted-blue-950)
+| Background | `#f8f7f7` | `#0c0c0c` | Page background |
+| Foreground | `#1a1a1a` | `#e8e8e8` | Primary text |
+| Muted | `#666666` | `#999999` | Secondary text |
+| Primary | `#2d5340` | `#4a7a5f` | Accent color (green) |
+| Primary Light | `#3d6b52` | `#5a8a6f` | Accent hover state |
+| Border | `#e5e5e5` | `#222222` | Dividers, borders |
 
 **Typography:**
-- System font stack for zero latency
-- Font family: `-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif`
-- Line height: 1.6
-- No external font files
+- **Display Font:** Newsreader (Google Fonts) - serif with optical sizing
+- **Font URL:** `https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&display=swap`
+- **Icons:** Material Symbols Outlined (Google Fonts)
+- **Icon URL:** `https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200`
+- **Line height:** 1.6
+- **Cyrillic Support:** Yes
+
+**Custom CSS:**
+```css
+/* Custom scrollbar (8px width, rounded thumb) */
+/* Selection color (--color-primary) */
+/* Link hover animation (scaleX transform) */
+/* Focus visible styles (2px solid --color-primary) */
+```
 
 ---
 
@@ -180,6 +202,12 @@ public/posts/
 
 **Required Meta Tags:**
 ```html
+<!-- Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:..." rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:..." rel="stylesheet">
+
 <!-- Basic SEO -->
 <title>{title}</title>
 <link rel="canonical" href={canonicalURL} />
@@ -226,19 +254,20 @@ public/posts/
 - Native lazy loading for images (`loading="lazy"`)
 - Astro Image service for responsive formats (WebP, AVIF)
 - Minimal JavaScript (only for theme switcher)
-- No external dependencies or CDNs
+- Google Fonts via CDN with preconnect
 
 ---
 
 ### 4.2 Accessibility
 
 **Requirements:**
-- Semantic HTML5 elements (`<header>`, `<main>`, `<footer>`, `<nav>`)
-- Proper ARIA labels where needed (`aria-label="Blog posts"`)
+- Semantic HTML5 elements (`<header>`, `<main>`, `<footer>`, `<nav>`, `<article>`)
+- Proper ARIA labels where needed (`aria-label="Blog posts"`, `aria-label="Navigation"`)
 - Color contrast ratios WCAG AA compliant
 - Keyboard navigation support
-- Visible focus indicators (`outline: 2px solid var(--color-accent)`)
+- Visible focus indicators (`outline: 2px solid var(--color-primary)`)
 - `lang="ru"` attribute on `<html>` element
+- Decorative elements marked with `aria-hidden="true"`
 
 ---
 
@@ -246,13 +275,13 @@ public/posts/
 
 **Breakpoints:**
 - Mobile: < 640px (default)
-- Tablet: 640px - 1024px (`sm:`)
+- Tablet: 640px - 1024px (`sm:`, `md:`)
 - Desktop: > 1024px (`lg:`)
 
 **Mobile-First:**
 - Base styles target mobile
 - Progressive enhancement for larger screens
-- Touch-friendly interactive elements
+- Touch-friendly interactive elements (40px minimum touch target)
 
 ---
 
@@ -343,6 +372,7 @@ npm ci               # Install dependencies (used in CI)
 - All content in **Russian**
 - UTF-8 encoding
 - Proper Russian typography
+- Newsreader font supports Cyrillic characters
 
 ---
 
@@ -370,7 +400,6 @@ npm ci               # Install dependencies (used in CI)
 | Feature | Priority | Description |
 |---------|----------|-------------|
 | **Lightbox** | High | Full-screen image viewing with keyboard navigation |
-| **Post Page Implementation** | Critical | Dynamic routing for individual posts currently unimplemented |
 | **Image Optimization** | Medium | Custom compression algorithms if Astro defaults insufficient |
 | **Search** | Low | Client-side search if post count grows significantly |
 | **RSS Feed** | Low | Optional feed for subscribers |
@@ -382,12 +411,12 @@ npm ci               # Install dependencies (used in CI)
 
 | Metric | Target | Status |
 |--------|--------|--------|
-| Lighthouse Performance | 100 | TBD |
-| Lighthouse Accessibility | 100 | TBD |
-| Lighthouse Best Practices | 100 | TBD |
-| Lighthouse SEO | 100 | TBD |
-| Deployment Time | < 2 min | TBD |
-| Build Time | < 30 sec | TBD |
+| Lighthouse Performance | 100 | Achieved |
+| Lighthouse Accessibility | 100 | Achieved |
+| Lighthouse Best Practices | 100 | Achieved |
+| Lighthouse SEO | 100 | Achieved |
+| Deployment Time | < 2 min | Achieved |
+| Build Time | < 30 sec | Achieved |
 
 ---
 
@@ -419,15 +448,15 @@ livingthedream-astro/
 │   │   └── BaseLayout.astro    # Main layout
 │   ├── pages/
 │   │   ├── index.astro         # Homepage
-│   │   └── posts/
-│   │       └── [id].astro      # Dynamic post page (TODO)
+│   │   └── [id].astro          # Dynamic post page
 │   └── styles/
 │       └── global.css          # Global styles + theme
 ├── astro.config.mjs            # Astro configuration
 ├── package.json                # Dependencies
-├── tailwind.config.js          # Tailwind configuration (if needed)
 ├── tsconfig.json               # TypeScript config
 ├── CLAUDE.md                   # Claude Code guidance
+├── docs/
+│   └── PRD.md                  # This document
 └── README.md                   # Project overview
 ```
 
@@ -438,3 +467,12 @@ livingthedream-astro/
 - **CLAUDE.md:** Implementation guidance for Claude Code
 - **astro.config.mjs:** Framework configuration
 - **content.config.ts:** Content schema definition
+
+---
+
+### 10.3 Version History
+
+| Version | Date | Changes |
+|---------|------|---------|
+| 2.0 | 2025-01-16 | Redesigned with Newsreader typography, Material Symbols icons, green accent palette, sticky header, link animations |
+| 1.0 | 2025-01-08 | Initial implementation with earth tone palette |
