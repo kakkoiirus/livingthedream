@@ -1,6 +1,6 @@
 ---
 import '../styles/global.css';
-import ThemeSwitcher from '../components/ThemeSwitcher';
+import ThemeSwitcher from '../components/ThemeSwitcher.tsx';
 
 interface Props {
   title?: string;
@@ -23,6 +23,12 @@ const currentYear = new Date().getFullYear();
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
+
+    <!-- Google Fonts: Newsreader + Material Symbols Outlined -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
 
     <!-- SEO Meta Tags -->
     <title>{title}</title>
@@ -75,12 +81,12 @@ const currentYear = new Date().getFullYear();
     </script>
   </head>
   <body class="min-h-screen flex flex-col">
-    <!-- Header -->
-    <header class="border-b" style="border-color: var(--color-border)">
+    <!-- Sticky Header -->
+    <header class="sticky top-0 z-50 backdrop-blur-md" style="background-color: var(--color-background); border-bottom: 1px solid var(--color-border);">
       <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="py-6 sm:py-8 flex justify-between items-center">
-          <h1 class="text-2xl sm:text-3xl font-normal tracking-tight">
-            <a href="/" class="hover:opacity-70 transition-opacity" style="color: var(--color-foreground)">
+        <div class="py-4 sm:py-6 flex justify-between items-center">
+          <h1 class="text-xl sm:text-2xl font-normal tracking-tight">
+            <a href="/" class="hover:opacity-70 transition-opacity link-hover" style="color: var(--color-foreground);">
               Живущие мечтой
             </a>
           </h1>
@@ -94,17 +100,12 @@ const currentYear = new Date().getFullYear();
       <slot />
     </main>
 
-    <!-- Footer -->
-    <footer class="border-t mt-auto" style="border-color: var(--color-border)">
-      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        <div class="flex flex-col sm:flex-row justify-between items-center gap-2 sm:gap-0">
-          <p class="text-sm" style="color: var(--color-muted)">
-            Живущие мечтой
-          </p>
-          <p class="text-sm" style="color: var(--color-muted)">
-            © {currentYear}
-          </p>
-        </div>
+    <!-- Minimal Footer -->
+    <footer class="mt-auto" style="border-top: 1px solid var(--color-border);">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <p class="text-sm text-center" style="color: var(--color-muted);">
+          © {currentYear} Живущие мечтой
+        </p>
       </div>
     </footer>
   </body>

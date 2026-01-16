@@ -24,17 +24,30 @@ const galleryImages = post.data.images || [];
 ---
 
 <BaseLayout title={post.data.title}>
-  <article class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-    <!-- Post Title -->
-    <header class="mb-8">
-      <h1 class="text-3xl sm:text-4xl lg:text-5xl font-normal tracking-tight" style="color: var(--color-foreground);">
+  <article class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+    <!-- Back to index link -->
+    <nav aria-label="Navigation" class="mb-8">
+      <a
+        href="/"
+        class="inline-flex items-center gap-2 text-sm link-hover"
+        style="color: var(--color-muted);"
+      >
+        <span class="material-symbols-outlined" style="font-size: 1.25rem;">arrow_back</span>
+        На главную
+      </a>
+    </nav>
+
+    <!-- Post Title with decorative line -->
+    <header class="mb-10 sm:mb-12">
+      <h1 class="text-3xl sm:text-4xl lg:text-5xl font-normal tracking-tight mb-6" style="color: var(--color-foreground);">
         {post.data.title}
       </h1>
+      <div class="w-12 h-1 rounded-full" style="background-color: var(--color-primary);"></div>
     </header>
 
     <!-- Inline Images (before main content) -->
     {inlineImages.length > 0 && (
-      <div class="mb-8 space-y-6">
+      <div class="mb-10 space-y-6">
         {inlineImages.map((imagePath) => (
           <figure>
             <Image
@@ -49,14 +62,14 @@ const galleryImages = post.data.images || [];
       </div>
     )}
 
-    <!-- Post Content -->
-    <div class="prose max-w-none">
+    <!-- Post Content with 65ch max-width -->
+    <div class="prose max-w-65ch">
       <Content />
     </div>
 
     <!-- Gallery Grid -->
     {galleryImages.length > 0 && (
-      <section class="mt-12" aria-label="Photo gallery">
+      <section class="mt-12 sm:mt-16" aria-label="Photo gallery">
         <h2 class="text-xl sm:text-2xl font-normal mb-6" style="color: var(--color-foreground);">
           Фотогалерея
         </h2>
@@ -75,17 +88,21 @@ const galleryImages = post.data.images || [];
         </div>
       </section>
     )}
+
+    <!-- Footer decoration with gradient -->
+    <div class="mt-16 sm:mt-20 h-px w-full" style="background: linear-gradient(to right, transparent, var(--color-border), transparent);"></div>
   </article>
 </BaseLayout>
 
 <style>
-  /* Prose styles for post content */
+  /* Typography-focused prose styles */
   .prose {
     color: var(--color-foreground);
+    font-size: 1.125rem;
   }
 
   .prose :global(p) {
-    margin-bottom: 1.5em;
+    margin-bottom: 1.75em;
     line-height: 1.8;
   }
 
@@ -106,13 +123,14 @@ const galleryImages = post.data.images || [];
   }
 
   .prose :global(a) {
-    color: var(--color-accent);
+    color: var(--color-primary);
     text-decoration: underline;
     text-underline-offset: 2px;
+    transition: color 0.2s ease;
   }
 
   .prose :global(a:hover) {
-    color: var(--color-accent-hover);
+    color: var(--color-primary-light);
   }
 
   .prose :global(ul), .prose :global(ol) {
@@ -125,7 +143,7 @@ const galleryImages = post.data.images || [];
   }
 
   .prose :global(blockquote) {
-    border-left: 3px solid var(--color-accent);
+    border-left: 3px solid var(--color-primary);
     padding-left: 1.5em;
     margin: 2em 0;
     font-style: italic;
@@ -142,5 +160,10 @@ const galleryImages = post.data.images || [];
   .prose :global(img) {
     border-radius: 0.5rem;
     margin: 2em 0;
+  }
+
+  /* 65 character max-width for optimal reading */
+  .max-w-65ch {
+    max-width: 65ch;
   }
 </style>
