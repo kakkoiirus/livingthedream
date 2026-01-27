@@ -1,6 +1,6 @@
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 
-type Theme = 'light' | 'dark' | 'system';
+type Theme = 'light' | 'dark';
 
 // Icon components using Material Symbols
 const SunIcon = () => (
@@ -15,35 +15,24 @@ const MoonIcon = () => (
   </span>
 );
 
-const MonitorIcon = () => (
-  <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }} aria-hidden="true">
-    desktop_windows
-  </span>
-);
-
 // Safe initialization that works on both server and client
 const getInitialTheme = (): Theme => {
-  if (typeof window === 'undefined') return 'system';
-  return (localStorage.getItem('theme') as Theme) || 'system';
+  if (typeof window === 'undefined') return 'light';
+  const savedTheme = localStorage.getItem('theme') as Theme;
+  if (savedTheme && (savedTheme === 'light' || savedTheme === 'dark')) {
+    return savedTheme;
+  }
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 };
 
 export default function ThemeSwitcher() {
   const [currentTheme, setCurrentTheme] = useState<Theme>(getInitialTheme());
-  const resolvedTheme = useRef<'light' | 'dark'>('light');
 
   // Apply theme to document
   const applyTheme = useCallback((theme: Theme) => {
     const root = document.documentElement;
     root.classList.remove('light', 'dark');
-
-    if (theme === 'system') {
-      const resolved = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-      resolvedTheme.current = resolved;
-      root.classList.add(resolved);
-    } else {
-      resolvedTheme.current = theme;
-      root.classList.add(theme);
-    }
+    root.classList.add(theme);
   }, []);
 
   // Apply theme when currentTheme changes
@@ -51,26 +40,8 @@ export default function ThemeSwitcher() {
     applyTheme(currentTheme);
   }, [currentTheme, applyTheme]);
 
-  // Listen for system preference changes
-  useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-
-    const handleChange = () => {
-      if (currentTheme === 'system') {
-        applyTheme('system');
-      }
-    };
-
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
-  }, [currentTheme, applyTheme]);
-
-  // Cycle to next theme
   const cycleTheme = () => {
-    const themes: Theme[] = ['light', 'dark', 'system'];
-    const currentIndex = themes.indexOf(currentTheme);
-    const nextTheme = themes[(currentIndex + 1) % themes.length];
-
+    const nextTheme = currentTheme === 'light' ? 'dark' : 'light';
     setCurrentTheme(nextTheme);
     localStorage.setItem('theme', nextTheme);
     applyTheme(nextTheme);
@@ -78,15 +49,14 @@ export default function ThemeSwitcher() {
 
   // Get icon for current theme
   const getCurrentIcon = () => {
-    if (currentTheme === 'system') return <MonitorIcon />;
     return currentTheme === 'dark' ? <MoonIcon /> : <SunIcon />;
   };
 
   return (
     <button
       onClick={cycleTheme}
-      aria-label="Переключить тему: Светлая → Темная → Системная"
-      className="rounded-full inline-flex items-center justify-center transition-all duration-200 hover:opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+      aria-label="Переключить тему"
+      className="rounded-full inline-flex items-center justify-center transition-all duration-200 hover:opacity-80 hover:cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
       style={{
         width: '40px',
         height: '40px',

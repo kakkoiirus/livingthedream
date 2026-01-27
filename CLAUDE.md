@@ -56,8 +56,10 @@ npm ci               # Install dependencies (used in CI)
 ### Components
 - **ThemeSwitcher.tsx** - React component with `client:load` directive
   - Manages dark/light theme with localStorage persistence
-  - Detects system preference as fallback
-  - Uses `mounted` state to avoid hydration mismatch
+  - On first visit: uses system preference to determine initial theme
+  - Click toggles between light and dark themes
+  - Displays SunIcon for light, MoonIcon for dark
+  - Safe server-side initialization to avoid hydration mismatch
 
 ### Layouts
 - **BaseLayout.astro** - Main layout with SEO meta tags
